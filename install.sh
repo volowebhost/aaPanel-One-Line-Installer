@@ -7,12 +7,12 @@ if [ -f /etc/os-release ]; then
     . /etc/os-release
     case "$ID" in
         centos|rhel|almalinux|rocky) 
-            PKG_UPDATE="yum update -y"
-            PKG_INSTALL="yum install -y"
+            PKG_UPDATE="/usr/bin/yum update -y"
+            PKG_INSTALL="/usr/bin/yum install -y"
             ;;
         ubuntu|debian) 
-            PKG_UPDATE="apt update -y"
-            PKG_INSTALL="apt install -y"
+            PKG_UPDATE="/usr/bin/apt update -y"
+            PKG_INSTALL="/usr/bin/apt install -y"
             ;;
         *) 
             echo "Unsupported OS"
@@ -24,9 +24,15 @@ else
     exit 1
 fi
 
+# Ensure package manager exists
+if ! command -v yum >/dev/null 2>&1 && ! command -v apt >/dev/null 2>&1; then
+    echo "No compatible package manager found. Exiting."
+    exit 1
+fi
+
 # Update system and install dependencies
-eval $PKG_UPDATE
-eval $PKG_INSTALL curl wget sudo
+eval "$PKG_UPDATE"
+eval "$PKG_INSTALL curl wget sudo"
 
 # Download and install aaPanel
 URL="https://www.aapanel.com/script/install_7.0_en.sh"
