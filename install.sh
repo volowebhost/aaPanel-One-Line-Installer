@@ -1,15 +1,23 @@
 #!/bin/bash
 
-# One-line installation script for aaPanel
 echo "Detecting OS and installing aaPanel..."
 
-# Detect OS and set package manager
+# Detect OS
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     case "$ID" in
-        centos|rhel|almalinux|rocky) PKG_MGR="yum -y";;
-        ubuntu|debian) PKG_MGR="apt -y";;
-        *) echo "Unsupported OS"; exit 1;;
+        centos|rhel|almalinux|rocky) 
+            PKG_UPDATE="yum update -y"
+            PKG_INSTALL="yum install -y"
+            ;;
+        ubuntu|debian) 
+            PKG_UPDATE="apt update -y"
+            PKG_INSTALL="apt install -y"
+            ;;
+        *) 
+            echo "Unsupported OS"
+            exit 1
+            ;;
     esac
 else
     echo "OS detection failed. Exiting."
@@ -17,7 +25,8 @@ else
 fi
 
 # Update system and install dependencies
-$PKG_MGR update && $PKG_MGR install curl wget sudo
+eval $PKG_UPDATE
+eval $PKG_INSTALL curl wget sudo
 
 # Download and install aaPanel
 URL="https://www.aapanel.com/script/install_7.0_en.sh"
@@ -27,4 +36,5 @@ else
     wget --no-check-certificate -O install_7.0_en.sh "$URL"
 fi
 
+# Execute the installer
 echo "y" | bash install_7.0_en.sh aapanel
